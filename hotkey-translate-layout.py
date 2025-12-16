@@ -1,5 +1,9 @@
 import sys
-letter_dict = {
+import argparse as ap
+
+en2ru = {
+    '~': 'Ё', '`': 'ё',
+
     'Q': 'Й', 'q': 'й',
     'W': 'Ц', 'w': 'ц',
     'E': 'У', 'e': 'у',
@@ -35,14 +39,31 @@ letter_dict = {
     '<': 'Б', ',': 'б',
     '>': 'Ю', '.': 'ю',
 }
+ru2en = {value: key for key, value in en2ru.items()}
 
-def translate(text: str) -> str:
-    for letter in text:
-        if letter_dict.get(letter):
-            text = text.replace(letter, letter_dict.get(letter), 1)
-    return text
+def translate(data: str, dir: str) -> str:
+    func = en2ru if dir == 'en2ru' else ru2en
+    return "".join(func.get(ch, ch) for ch in data)
+
+def main():
+    try:
+        AP = ap.ArgumentParser()
+        AP.add_argument("--dir", choices=("en2ru", "ru2en"), default="en2ru")
+        args = AP.parse_args()
+
+        data = sys.stdin.read()
+
+        if data.strip():
+            sys.stderr.write('\a')
+            sys.stderr.flush()
+
+        sys.stdout.write(translate(data, args.dir))
+
+        sys.stdout.flush()
+        return 0
+    except Exception as e:
+        print(e)
+        return 1
 
 if __name__ == '__main__':
-    data = sys.stdin.read()
-    data = translate(data)
-    sys.stdout.write(data)
+    sys.exit(main())
